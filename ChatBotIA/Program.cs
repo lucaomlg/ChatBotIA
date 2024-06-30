@@ -48,26 +48,25 @@ while (a != "para")
     {
         await page.WaitForSelectorAsync("textarea");
 
-        // Envia uma mensagem
+        //// Envia uma mensagem
         await page.TypeAsync("textarea", a);
         await page.Keyboard.PressAsync("Enter");
 
         // Aguarda a resposta e captura o texto
-        //await page.WaitForSelectorAsync("w-full text-token-text-primary");
         Thread.Sleep(10000);
-        var allParagraphs = await page.QuerySelectorAllAsync("p");
-        // Pega o último elemento <p>
-        var lastParagraph = allParagraphs[allParagraphs.Count()-2];
+        
+        var elementCount = await page.EvaluateExpressionAsync<int>(
+                @"document.getElementsByClassName('flex w-full flex-col gap-1 juice:empty:hidden juice:first:pt-[3px]').length");
 
-        // Obtém o texto do último elemento <p>
-        var responseText = await lastParagraph.EvaluateFunctionAsync<string>("el => el.innerText");
-        //var response = await page.QuerySelectorAsync("p");
-        //var responseText = await response.EvaluateFunctionAsync<string>("el => el.innerText");
+        var elementText = await page.EvaluateFunctionAsync<string>(
+    $@"(className) => document.getElementsByClassName(className)[{elementCount-1}].innerText",
+    "flex w-full flex-col gap-1 juice:empty:hidden juice:first:pt-[3px]");
 
-        Console.WriteLine("Resposta do ChatGPT: " + responseText);
+       
+        Console.WriteLine("Resposta do ChatGPT: " + elementText);
 
         a = Console.ReadLine();
-        b++;
+       
     }
     catch (Exception ex) 
     {
